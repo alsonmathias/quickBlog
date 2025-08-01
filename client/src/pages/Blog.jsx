@@ -1,11 +1,30 @@
-import React from 'react'
-
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { blog_data } from "../assets/assets";
+import Navbar from "../components/Navbar";
 const Blog = () => {
+  const { id } = useParams();
+
+  const [data, setData] = useState(null);
+  const fetcBlogData = async () => {
+    const data = blog_data.find((item) => item._id === id);
+    setData(data);
+  };
+  useEffect(() => {
+    fetcBlogData();
+  }, []);
+
   return (
-    <div>
-      <h1>Blog</h1>
-    </div>
-  )
+    data ? (
+      <div className="relative">
+        <Navbar/>
+        <div></div>
+        <div></div>
+      </div>
+    ) : (
+      <div>Loading...</div>
+    )
+  );
 }
 
-export default Blog
+export default Blog;
