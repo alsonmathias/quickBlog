@@ -19,14 +19,6 @@ const AddBlog = () => {
   const [category, setCategory] = useState("Startup");
   const [isPublished, setIsPublished] = useState(false);
 
-  //conversion to title case
-  const toTitleCase = (str) =>
-    str
-      .trim()
-      .toLowerCase()
-      .split(/\s+/) // handles multiple spaces
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
 
   //generate content
 
@@ -36,7 +28,9 @@ const AddBlog = () => {
     }
     try {
       setLoading(true);
-      const { data } = await axios.post("/api/blog/generate", { prompt: title });
+      const { data } = await axios.post("/api/blog/generate", {
+        prompt: title,
+      });
       if (data.success) {
         quillRef.current.root.innerHTML = parse(data.content);
       } else {
@@ -113,7 +107,7 @@ const AddBlog = () => {
         </label>
         <p className="mt-4">Blog Title</p>
         <input
-          onChange={(e) => setTitle(toTitleCase(e.target.value))}
+          onChange={(e) => setTitle(e.target.value)}
           value={title}
           type="text"
           placeholder="Type here"
@@ -132,6 +126,11 @@ const AddBlog = () => {
         <p className="mt-4">Blog Description</p>
         <div className="max-w-lg h-74 pb-16 sm:pb-10 pt-2 relative">
           <div ref={editorRef}></div>
+          {loading && (
+            <div className="absolute right-0 top-0 bottom-0 left-0 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full border-2 border-t-white animate-spin"></div>
+            </div>
+          )}
           <button
             type="button"
             disabled={loading}
