@@ -19,7 +19,7 @@ const Blog = () => {
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
 
-  const fetcBlogData = async () => {
+  const fetchBlogData = async () => {
     try {
       const { data } = await axios.get(`/api/blog/${id}`);
       data.success ? setData(data.blog) : toast.error(data.message);
@@ -27,6 +27,17 @@ const Blog = () => {
       toast.error(error.message);
     }
   };
+
+  //title case converter
+  const toTitleCase = (str) =>
+    str
+      .trim()
+      .toLowerCase()
+      .split(/\s+/) // handles multiple spaces
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+  //comment adding
   const addComment = async (e) => {
     e.preventDefault();
     try {
@@ -39,6 +50,7 @@ const Blog = () => {
         toast.success(data.message);
         setName("");
         setContent("");
+        await fetchComments(); 
       } else {
         toast.error(data.message);
       }
@@ -46,7 +58,9 @@ const Blog = () => {
       toast.error(error.message);
     }
   };
-  const fetchCommetns = async () => {
+
+  //fetch the comments
+  const fetchComments = async () => {
     try {
       const { data } = await axios.post("/api/blog/comments", { blogId: id });
       if (data.success) {
@@ -59,8 +73,8 @@ const Blog = () => {
     }
   };
   useEffect(() => {
-    fetcBlogData();
-    fetchCommetns();
+    fetchBlogData();
+    fetchComments();
   }, []);
 
   return data ? (
@@ -130,14 +144,15 @@ const Blog = () => {
             className="flex flex-col items-start gap-4"
           >
             <input
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(toTitleCase(e.target.value))}
+              required
               value={name}
               type="text"
               placeholder="Name"
               className="w-full p-2 border border-gray-300 rounded outline-none"
             />
             <textarea
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => setContent(toTitleCase(e.target.value))}
               value={content}
               className="w-full p-2 border border-gray-300 rounded outline-none h-48"
               required
