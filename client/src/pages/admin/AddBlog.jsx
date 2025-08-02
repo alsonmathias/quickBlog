@@ -3,10 +3,12 @@ import { assets, blogCategories } from "../../assets/assets";
 import Quill from "quill";
 import { useAppContext } from "../../../context/AppContext";
 import toast from "react-hot-toast";
+import { parse } from "marked";
 
 const AddBlog = () => {
   const { axios } = useAppContext();
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const editorRef = useRef(null);
   const quillRef = useRef(null);
@@ -17,7 +19,37 @@ const AddBlog = () => {
   const [category, setCategory] = useState("Startup");
   const [isPublished, setIsPublished] = useState(false);
 
-  const generateContent = async () => {};
+  //conversion to title case
+  const toTitleCase = (str) =>
+    str
+      .trim()
+      .toLowerCase()
+      .split(/\s+/) // handles multiple spaces
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+  //generate content
+
+  const generateContent = async () => {
+    if (!title) {
+      return toast.error("Please enter a title");
+    }
+    try {
+      setLoading(true);
+      const { data } = await axios.post("/api/blog/generate", { prompt: title });
+      if (data.success) {
+        quillRef.current.root.innerHTML = parse(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //submit function
   const onSubmitHandler = async (e) => {
     try {
       e.preventDefault();
@@ -81,7 +113,7 @@ const AddBlog = () => {
         </label>
         <p className="mt-4">Blog Title</p>
         <input
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => setTitle(toTitleCase(e.target.value))}
           value={title}
           type="text"
           placeholder="Type here"
@@ -102,6 +134,7 @@ const AddBlog = () => {
           <div ref={editorRef}></div>
           <button
             type="button"
+            disabled={loading}
             onClick={generateContent}
             className="absolute bottom-1 right-2 ml-2 text-xs text-white bg-black/70 
           px-4 py-1.5 rounded hover:underline cursor-pointer"
@@ -132,7 +165,6 @@ const AddBlog = () => {
             checked={isPublished}
             className="scale-125 cursor-pointer"
             onChange={(e) => setIsPublished(e.target.checked)}
-
           />
         </div>
         <button
