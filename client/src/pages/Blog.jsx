@@ -28,15 +28,6 @@ const Blog = () => {
     }
   };
 
-  //title case converter
-  const toTitleCase = (str) =>
-    str
-      .trim()
-      .toLowerCase()
-      .split(/\s+/) // handles multiple spaces
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-
   //comment adding
   const addComment = async (e) => {
     e.preventDefault();
@@ -144,7 +135,7 @@ const Blog = () => {
             className="flex flex-col items-start gap-4"
           >
             <input
-              onChange={(e) => setName(toTitleCase(e.target.value))}
+              onChange={(e) => setName(e.target.value)}
               required
               value={name}
               type="text"
@@ -152,7 +143,7 @@ const Blog = () => {
               className="w-full p-2 border border-gray-300 rounded outline-none"
             />
             <textarea
-              onChange={(e) => setContent(toTitleCase(e.target.value))}
+              onChange={(e) => setContent(e.target.value)}
               value={content}
               className="w-full p-2 border border-gray-300 rounded outline-none h-48"
               required
